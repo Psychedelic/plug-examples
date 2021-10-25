@@ -1553,7 +1553,7 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@psychedelic/plug-connect@^0.1.3":
+"@psychedelic/plug-connect@0.1.3":
   version "0.1.3"
   resolved "https://npm.pkg.github.com/download/@psychedelic/plug-connect/0.1.3/6acc475c38644874404c10d557b73c49956e65543521adcccd3692775f7a190f#214b6ba9db1cb848529607083cc40c6a119b261a"
   integrity sha512-dsnyu17MxlmG0B5uuynZgFwxKuWlg3ZCQJZ7mWcYSoT5dUqIbVfp+i/+7rDYj9xhpuI+J+zIylAAMdiNNjuhTw==
