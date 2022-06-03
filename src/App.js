@@ -18,6 +18,8 @@ export const NNS_MINTING_CID = 'rkp4c-7iaaa-aaaaa-aaaca-cai';
 export const NNS_LEDGER_CID = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const COINFLIP_CANISTER_ID = '24pmb-qiaaa-aaaah-aannq-cai';
 
+
+
 // Subaccounts are arbitrary 32-byte values.
 export const SUB_ACCOUNT_ZERO = Buffer.alloc(32);
 
@@ -27,213 +29,84 @@ const CYCLES_PER_TC = 1_000_000_000_000;
 const E8S_PER_ICP = 100_000_000;
 
 function App() {
-  const [to, setTo] = useState();
-  const [amount, setAmount] = useState(0);
+  const [rpc, setRPC] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [nftIndex, setNFTIndex] = useState(0);
+  const [session, setSession] = useState(null);
+
+  const initialize = () => {
+    setRPC(window.ic.plug.sessionManager.rpc);
+    setConnected(true);
+    setSession(window.ic.plug.sessionManager.sessionData);
+  }
+  useEffect(() => {
+    window.ic.plug.isConnected().then((isConnected) => {
+      if (isConnected) {
+        initialize(true);
+      }
+    })
+  }, []);
+
+
+  const callRPCMethod = async (methodName) => {
+    try {
+      console.log('rpc', rpc);
+      const res = await rpc.call({ handler: methodName, args: [{ status: 'approved', data: 'something malicious' }] });
+      alert('PROVIDER UNSAFE', res);
+    } catch (e) {
+      console.log('OK, provider errored out', e);
+    }
+  }
+
+  const validTransfer = () =>
+    window.ic.plug.requestTransfer({
+      amount: 100,
+      to: 'xksyk-jrty5-s6ei6-k3cak-wb2mv-5rtv5-atxvn-gnqsm-i6kuh-irkqa-4ae',
+    });
   
-  const handleChangeTo = e => setTo(e.target.value);
-  const handleChangeAmount = e => setAmount(e.target.value);
-  const handleChangeIndex = e => setNFTIndex(e.target.value);
+  const validBurnXTC = () =>
+    window.ic.plug.requestBurnXTC({ amount: 100000000000, to: 'jralp-tqaaa-aaaah-aaf3q-cai' });
 
-  const safeXTCTransfer = async () => {
-    // create an actor to interact with XTC
-    const actor = await window.ic.plug.createActor({ canisterId: XTC_CANISTER_ID, interfaceFactory: XtcIDL });
-    // request a transfer using this actor
-    const response = await actor.transfer({ to: Principal.fromText(to), amount: BigInt(amount*CYCLES_PER_TC), from: [] });
-    console.log('response', response);
-  }
-
-  const unsafeXTCTransfer = async () => {
-    const actor = await Actor.createActor(XtcIDL, {
-      agent: window.ic.plug.agent,
-      canisterId: XTC_CANISTER_ID,
+  const validTransferToken = () =>
+    window.ic.plug.requestTransfer({
+      amountStr: '0.1',
+      to: 'xksyk-jrty5-s6ei6-k3cak-wb2mv-5rtv5-atxvn-gnqsm-i6kuh-irkqa-4ae',
     });
-    const response = await actor.transfer({ to: Principal.fromText(to), amount: BigInt(amount*CYCLES_PER_TC), from: [] });
-    console.log('response', response);
-  }
-
-
-  const safeICPTransfer = async () => {
-    // create an actor to interact with XTC
-    const actor = await window.ic.plug.createActor({ canisterId: NNS_LEDGER_CID, interfaceFactory: nns_ledgerDid });
-    // request a transfer using this actor
-    const response = await actor.send_dfx({
-      to: getAccountId(Principal.from(to)),
-      fee: { e8s: BigInt(10000) },
-      amount: { e8s: BigInt(amount) },
-      memo: RandomBigInt(32),
-      from_subaccount: [], // For now, using default subaccount to handle ICP
-      created_at_time: [],
-    });console.log('response', response);
-  }
-
-  const unsafeICPTransfer = async () => {
-    const actor = await Actor.createActor(nns_ledgerDid, {
-      agent: window.ic.plug.agent,
-      canisterId: NNS_LEDGER_CID,
-    });
-    const response = await actor.send_dfx({
-      to: getAccountId(Principal.from(to)),
-      fee: { e8s: BigInt(10000) },
-      amount: { e8s: BigInt(amount) },
-      memo: RandomBigInt(32),
-      from_subaccount: [], // For now, using default subaccount to handle ICP
-      created_at_time: [],
-    });
-    console.log('response', response);
-  }
-
-
-  const safeNFTTransfer = async () => {
-    // create an actor to interact with XTC
-    const actor = await window.ic.plug.createActor({ canisterId: STARVERSE_CID, interfaceFactory: ExtIDL });
-    // request a transfer using this actor
-    const response = await actor.transfer({
-      to: { principal: Principal.from(to) },
-      from: { principal: await window.ic.plug.agent.getPrincipal() },
-      token: getTokenIdentifier(STARVERSE_CID, nftIndex),
-      amount: BigInt(1),
-      memo: new Array(32).fill(0),
-      notify: false,
-      subaccount: [],
-    });
-    console.log('response', response);
-  };
-
-  const unsafeNFTTransfer = async () => {
-    // create an actor to interact with XTC
-    const actor = await Actor.createActor(ExtIDL, {
-      agent: window.ic.plug.agent,
-      canisterId: STARVERSE_CID,
-    });
-    // request a transfer using this actor
-    const response = await actor.transfer({
-      to: { principal: Principal.from(to) },
-      from: { principal: await window.ic.plug.agent.getPrincipal() },
-      token: getTokenIdentifier(STARVERSE_CID, nftIndex),
-      amount: BigInt(1),
-      memo: new Array(32).fill(0),
-      notify: false,
-      subaccount: [],
-    });
-    console.log('response', response);
-  };
-
-  const safeNFTLock = async () => {
-    // create an actor to interact with XTC
-    const actor = await window.ic.plug.createActor({ canisterId: STARVERSE_CID, interfaceFactory: ExtIDL });
-    // request a transfer using this actor
-    const response = await actor.lock(
-        getTokenIdentifier(STARVERSE_CID, nftIndex),
-        BigInt(1),
-        getAccountId(Principal.from(to)),
-        []
-    );
-    console.log('response', response);
-  };
-
-  // const unsafeNFTTransfer = async () => {
-  //   // create an actor to interact with XTC
-  //   const actor = await Actor.createActor(ExtIDL, {
-  //     agent: window.ic.plug.agent,
-  //     canisterId: STARVERSE_CID,
-  //   });
-  //   // request a transfer using this actor
-  //   const response = await actor.transfer({
-  //     to: { principal: Principal.from(to) },
-  //     from: { principal: await window.ic.plug.agent.getPrincipal() },
-  //     token: getTokenIdentifier(STARVERSE_CID, nftIndex),
-  //     amount: BigInt(1),
-  //     memo: new Array(32).fill(0),
-  //     notify: false,
-  //     subaccount: [],
-  //   });
-  //   console.log('response', response);
-  // };
-
-
-  const safeCanisterCall = async () => {
-    const actor = await window.ic.plug.createActor({ canisterId: NNS_MINTING_CID, interfaceFactory: nnsMintingDid });
-    // request a transfer using this actor
-    const response = await actor.transaction_notification({
-      to: Principal.from(to),
-      from: await window.ic.plug.agent.getPrincipal(),
-      amount:  { e8s: BigInt(amount*E8S_PER_ICP) },
-      memo: BigInt(100),
-      notify: false,
-      to_subaccount: [],
-      from_subaccount: [],
-      block_height: BigInt(100),
-    });
-    console.log('response', response);
-  }
-
-  const unsafeCanisterCall = async () => {
-    const actor = await Actor.createActor(nnsMintingDid, {
-      agent: window.ic.plug.agent,
-      canisterId: NNS_MINTING_CID,
-    });
-    // request a transfer using this actor
-    const response = await actor.transaction_notification({
-      to: Principal.from(to),
-      from: await window.ic.plug.agent.getPrincipal(),
-      amount:  { e8s: BigInt(amount*E8S_PER_ICP) },
-      memo: BigInt(100),
-      notify: false,
-      to_subaccount: [],
-      from_subaccount: [],
-      block_height: BigInt(100),
-    });
-    console.log('response', response);
-  }
 
   return (
     <div className="flex column center">
       <h1>Plug Examples</h1>
-      <h2>Security Example</h2>
       <div className="plug-button">
-        {connected ? 'Connected to plug' : (
+        {connected ? `Connected Principal: ${session?.principalId}` : (
           <PlugConnect
             dark
-            onConnectCallback={() => setConnected(true)} whitelist={WHITELIST}
+            onConnectCallback={initialize} whitelist={WHITELIST}
             // timeout={5000}
           />
         )}
       </div>
-      {connected && (
-      <>
-        <div className="flex column input-container">
-          <label htmlFor="to">Recipient principal</label>
-          <input name="to" type="text" onChange={handleChangeTo} value={to} />
-        </div>
-        <div className="flex column input-container">
-          <label htmlFor="to">Amount of XTC</label>
-          <input name="to" type="number" onChange={handleChangeAmount} value={amount} />
-        </div>
-        <div className="flex column input-container">
-          <label htmlFor="to">Starverse Index</label>
-          <input name="to" type="number" onChange={handleChangeIndex} value={nftIndex} />
-        </div>
-        <div className="security-actions-container flex column">
-          <h3>Safe Calls</h3>
-          <button disabled={!to} type="button" onClick={safeXTCTransfer}>{`Transfer ${amount} XTC (${CYCLES_PER_TC * amount} cycles)`}</button>
-          <button disabled={!to} type="button" onClick={safeNFTTransfer}>{`Transfer Starverse #${nftIndex}`}</button>
-          <button disabled={!to} type="button" onClick={safeNFTLock}>{`Lock Starverse #${nftIndex}`}</button>
-          <button disabled={!to} type="button" onClick={safeICPTransfer}>{`Transfer ${amount} e8s`}</button>
-          <button disabled={!to} type="button" onClick={safeCanisterCall}>Call NNS Minting Canister</button> 
-        </div>
-        <div className="security-actions-container">
-          <h3>Unsafe Calls</h3>
-          <button disabled={!to} type="button" onClick={unsafeXTCTransfer}>{`Transfer 0.000001 XTC (1000 cycles)`}</button>
-          <button disabled={!to} type="button" onClick={unsafeICPTransfer}>{`Transfer ${amount} e8s`}</button> 
-          <button disabled={!to} type="button" onClick={unsafeNFTTransfer}>Transfer NFT</button>
-          <button disabled={!to} type="button" onClick={unsafeCanisterCall}>Call NNS Minting Canister</button> 
-        </div>
-        <BatchTransactions />
-      </>
-      )}
-      
+      <h2>Security Example</h2>
+
+      <h3>Valid TXs</h3>
+     <BatchTransactions />
+      <button onClick={validTransfer}>Request Transfer</button>
+      <button onClick={validTransferToken}>Request Transfer Token</button>
+      <button onClick={validBurnXTC}>Request BurnXTC</button>
+
+      <h3>Transaction Module</h3>
+      <button onClick={() => callRPCMethod('handleRequestTransfer')}>Request Transfer</button>
+      <button onClick={() => callRPCMethod('handleRequestTransferToken')}>Request Transfer Token</button>
+      <button onClick={() => callRPCMethod('handleRequestBurnXTC')}>Request BurnXTC</button>
+      <button onClick={() => callRPCMethod('handleBatchTransactions')}>Request Batch TX</button>
+      <button onClick={() => callRPCMethod('handleCall')}>Request Call</button>
+
+      <h3>Information Module</h3>
+      <button onClick={() => callRPCMethod('handleRequestBalance')}>Request Balance (Locked)</button>
+      <button onClick={() => callRPCMethod('handleGetPrincipal')}>Request Principal (Locked)</button>
+      <button onClick={() => callRPCMethod('handleGetICNSInfo')}>Request ICNSInfo</button>
+
+      <h3>Connection Module</h3>
+      <button onClick={() => callRPCMethod('handleAllowAgent')}>Request Connect</button>
+      <button onClick={() => callRPCMethod('handleGetConnectionData')}>Request Connection (Locked)</button>
     </div>
   );
 }
