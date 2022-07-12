@@ -112,6 +112,8 @@ dist
 # testing
 /coverage
 
+/local-modules
+
 
 # misc
 .DS_Store

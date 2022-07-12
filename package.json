@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/candid": "^0.10.1",
-    "@dfinity/principal": "^0.10.1",
-    "@psychedelic/plug-connect": "0.1.3",
+    "@dfinity/agent": "^0.9.3",
+    "@dfinity/candid": "^0.9.3",
+    "@dfinity/principal": "^0.9.3",
+    "@psychedelic/plug-connect": "/Users/aacevedo/Documents/Fleek/plug-examples/local-modules/plug-connect",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -19,7 +19,9 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "local-modules": "./scripts/local-modules.js",
+    "start": "BROWSER=none react-scripts start",
+    "ngrock": "ngrok http 3000 -host-header='localhost:3000'",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
