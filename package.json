@@ -6,7 +6,6 @@
     "@dfinity/agent": "^0.9.3",
     "@dfinity/candid": "^0.9.3",
     "@dfinity/principal": "^0.9.3",
-    "@psychedelic/plug-connect": "/Users/aacevedo/Documents/Fleek/plug-examples/local-modules/plug-connect",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -19,9 +18,9 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "local-modules": "./scripts/local-modules.js",
+    "local-modules": "sh  ./scripts/local-walletconnect.sh",
     "start": "BROWSER=none react-scripts start",
-    "ngrock": "ngrok http 3000 -host-header='localhost:3000'",
+    "ngrock": "ngrok http 3000 --host-header='localhost:3000'",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

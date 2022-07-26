@@ -15,6 +15,8 @@ cd "$pluginpageproviderdir"
 
 git checkout feat/wallet-connect-rpc
 
+git pull origin feat/wallet-connect-rpc
+
 yarn install && echo "[PLUG-INPAGE-PROVIDER INSTALLED]"
 
 yarn build && echo "[PLUG-INPAGE-PROVIDER BUILT]"
@@ -27,12 +29,13 @@ cd "$plugconnectdir"
 
 git checkout feat/wallet-connect
 
+git pul origin feat/wallet-connect
+
 yarn install && echo "[PLUG-CONNECT INSTALLED]"
 
 yarn add "$pluginpageproviderdir"
 
 yarn build && echo "[PLUG-CONNECT BUILT]"
-
 
 echo "$rootdir"
 cd "$rootdir"
