@@ -66,6 +66,12 @@ function App() {
     console.log('response', response);
   }
 
+  const requestTransfer = async () => {
+    const response = await window.ic.plug.requestTransfer({ to, amount: 10000 })
+
+    console.log('response', response);
+  }
+
 
   const safeXTCTransfer = async () => {
     // create an actor to interact with XTC
@@ -263,6 +269,7 @@ function App() {
 
           <div className="security-actions-container flex column">
             <h3>Safe Calls</h3>
+            <button disabled={!to} type="button" onClick={requestTransfer}>{`Transfer 0,0001 ICP`}</button>
             <button disabled={!to} type="button" onClick={safeXTCTransfer}>{`Transfer ${amount} XTC (${CYCLES_PER_TC * amount} cycles)`}</button>
             <button disabled={!to} type="button" onClick={safeNFTTransfer}>{`Transfer Starverse #${nftIndex}`}</button>
             <button disabled={!to} type="button" onClick={safeNFTLock}>{`Lock Starverse #${nftIndex}`}</button>

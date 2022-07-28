@@ -29,7 +29,7 @@ cd "$plugconnectdir"
 
 git checkout feat/wallet-connect
 
-git pul origin feat/wallet-connect
+git pull origin feat/wallet-connect
 
 yarn install && echo "[PLUG-CONNECT INSTALLED]"
 
