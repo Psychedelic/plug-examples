@@ -18,7 +18,21 @@ const TRANSFER_XTC_TX = {
   idl: XtcIDL,
   canisterId: XTC_CANISTER_ID,
   methodName: 'transfer',
-  args: [{ to: Principal.fromText('xksyk-jrty5-s6ei6-k3cak-wb2mv-5rtv5-atxvn-gnqsm-i6kuh-irkqa-4ae'), amount: BigInt(1400000), from: [] }],
+  args: [Principal.fromText('xksyk-jrty5-s6ei6-k3cak-wb2mv-5rtv5-atxvn-gnqsm-i6kuh-irkqa-4ae'), BigInt(1400000)],
+  onSuccess: async (res) => {
+    console.log('transferred xtc successfully');
+  },
+  onFail: (res) => {
+    console.log('transfer xtc error', res);
+  },
+};
+
+
+const TRANSFER_XTC_TX_TO_FAIL = {
+  idl: XtcIDL,
+  canisterId: XTC_CANISTER_ID,
+  methodName: 'transfer',
+  args: [Principal.fromText('xksyk-jrty5-s6ei6-k3cak-wb2mv-5rtv5-atxvn-gnqsm-i6kuh-irkqa-4ae'), BigInt(1400000000000000000000)],
   onSuccess: async (res) => {
     console.log('transferred xtc successfully');
   },
@@ -94,11 +108,17 @@ const BatchTransactionsExample = () => {
     await window.ic.plug.batchTransactions([TRANSFER_XTC_TX, TRANSFER_ICP_TX, TRANSFER_STARVERSE_TX, FLIP_TRANSACTION(1)])
     console.log('Done!');
   }
+  const randomTxToFail = async () => {
+    console.log('Doing a bunch of tx');
+    await window.ic.plug.batchTransactions([TRANSFER_XTC_TX_TO_FAIL, TRANSFER_ICP_TX, TRANSFER_STARVERSE_TX, FLIP_TRANSACTION(1)])
+    console.log('Done!');
+  }
   return (
     <div className="batch-transactions-container">
       <h2>Batch Transactions Example</h2>
       <button type="button" onClick={tripleFlipIt}>Triple Flip</button>
       <button type="button" onClick={randomTx}>Random Transactions</button>
+      <button type="button" onClick={randomTxToFail}>Random Transactions TO FAIL</button>
     </div>
   )
 }

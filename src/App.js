@@ -31,7 +31,7 @@ function App() {
   const [amount, setAmount] = useState(0);
   const [connected, setConnected] = useState(false);
   const [nftIndex, setNFTIndex] = useState(0);
-  
+
   const handleChangeTo = e => setTo(e.target.value);
   const handleChangeAmount = e => setAmount(e.target.value);
   const handleChangeIndex = e => setNFTIndex(e.target.value);
@@ -40,7 +40,7 @@ function App() {
     // create an actor to interact with XTC
     const actor = await window.ic.plug.createActor({ canisterId: XTC_CANISTER_ID, interfaceFactory: XtcIDL });
     // request a transfer using this actor
-    const response = await actor.transfer({ to: Principal.fromText(to), amount: BigInt(amount*CYCLES_PER_TC), from: [] });
+    const response = await actor.transfer(Principal.fromText(to), BigInt(amount * CYCLES_PER_TC));
     console.log('response', response);
   }
 
@@ -49,7 +49,9 @@ function App() {
       agent: window.ic.plug.agent,
       canisterId: XTC_CANISTER_ID,
     });
-    const response = await actor.transfer({ to: Principal.fromText(to), amount: BigInt(amount*CYCLES_PER_TC), from: [] });
+    const pid = Principal.fromText(to)
+    console.log('PID', pid);
+    const response = await actor.transfer(pid, BigInt(amount * CYCLES_PER_TC));
     console.log('response', response);
   }
 
@@ -65,7 +67,7 @@ function App() {
       memo: RandomBigInt(32),
       from_subaccount: [], // For now, using default subaccount to handle ICP
       created_at_time: [],
-    });console.log('response', response);
+    }); console.log('response', response);
   }
 
   const unsafeICPTransfer = async () => {
@@ -125,10 +127,10 @@ function App() {
     const actor = await window.ic.plug.createActor({ canisterId: STARVERSE_CID, interfaceFactory: ExtIDL });
     // request a transfer using this actor
     const response = await actor.lock(
-        getTokenIdentifier(STARVERSE_CID, nftIndex),
-        BigInt(1),
-        getAccountId(Principal.from(to)),
-        []
+      getTokenIdentifier(STARVERSE_CID, nftIndex),
+      BigInt(1),
+      getAccountId(Principal.from(to)),
+      []
     );
     console.log('response', response);
   };
@@ -159,7 +161,7 @@ function App() {
     const response = await actor.transaction_notification({
       to: Principal.from(to),
       from: await window.ic.plug.agent.getPrincipal(),
-      amount:  { e8s: BigInt(amount*E8S_PER_ICP) },
+      amount: { e8s: BigInt(amount * E8S_PER_ICP) },
       memo: BigInt(100),
       notify: false,
       to_subaccount: [],
@@ -178,7 +180,7 @@ function App() {
     const response = await actor.transaction_notification({
       to: Principal.from(to),
       from: await window.ic.plug.agent.getPrincipal(),
-      amount:  { e8s: BigInt(amount*E8S_PER_ICP) },
+      amount: { e8s: BigInt(amount * E8S_PER_ICP) },
       memo: BigInt(100),
       notify: false,
       to_subaccount: [],
@@ -197,43 +199,43 @@ function App() {
           <PlugConnect
             dark
             onConnectCallback={() => setConnected(true)} whitelist={WHITELIST}
-            // timeout={5000}
+          // timeout={5000}
           />
         )}
       </div>
       {connected && (
-      <>
-        <div className="flex column input-container">
-          <label htmlFor="to">Recipient principal</label>
-          <input name="to" type="text" onChange={handleChangeTo} value={to} />
-        </div>
-        <div className="flex column input-container">
-          <label htmlFor="to">Amount of XTC</label>
-          <input name="to" type="number" onChange={handleChangeAmount} value={amount} />
-        </div>
-        <div className="flex column input-container">
-          <label htmlFor="to">Starverse Index</label>
-          <input name="to" type="number" onChange={handleChangeIndex} value={nftIndex} />
-        </div>
-        <div className="security-actions-container flex column">
-          <h3>Safe Calls</h3>
-          <button disabled={!to} type="button" onClick={safeXTCTransfer}>{`Transfer ${amount} XTC (${CYCLES_PER_TC * amount} cycles)`}</button>
-          <button disabled={!to} type="button" onClick={safeNFTTransfer}>{`Transfer Starverse #${nftIndex}`}</button>
-          <button disabled={!to} type="button" onClick={safeNFTLock}>{`Lock Starverse #${nftIndex}`}</button>
-          <button disabled={!to} type="button" onClick={safeICPTransfer}>{`Transfer ${amount} e8s`}</button>
-          <button disabled={!to} type="button" onClick={safeCanisterCall}>Call NNS Minting Canister</button> 
-        </div>
-        <div className="security-actions-container">
-          <h3>Unsafe Calls</h3>
-          <button disabled={!to} type="button" onClick={unsafeXTCTransfer}>{`Transfer 0.000001 XTC (1000 cycles)`}</button>
-          <button disabled={!to} type="button" onClick={unsafeICPTransfer}>{`Transfer ${amount} e8s`}</button> 
-          <button disabled={!to} type="button" onClick={unsafeNFTTransfer}>Transfer NFT</button>
-          <button disabled={!to} type="button" onClick={unsafeCanisterCall}>Call NNS Minting Canister</button> 
-        </div>
-        <BatchTransactions />
-      </>
+        <>
+          <div className="flex column input-container">
+            <label htmlFor="to">Recipient principal</label>
+            <input name="to" type="text" onChange={handleChangeTo} value={to} />
+          </div>
+          <div className="flex column input-container">
+            <label htmlFor="to">Amount of XTC</label>
+            <input name="to" type="number" onChange={handleChangeAmount} value={amount} />
+          </div>
+          <div className="flex column input-container">
+            <label htmlFor="to">Starverse Index</label>
+            <input name="to" type="number" onChange={handleChangeIndex} value={nftIndex} />
+          </div>
+          <div className="security-actions-container flex column">
+            <h3>Safe Calls</h3>
+            <button disabled={!to} type="button" onClick={safeXTCTransfer}>{`Transfer ${amount} XTC (${CYCLES_PER_TC * amount} cycles)`}</button>
+            <button disabled={!to} type="button" onClick={safeNFTTransfer}>{`Transfer Starverse #${nftIndex}`}</button>
+            <button disabled={!to} type="button" onClick={safeNFTLock}>{`Lock Starverse #${nftIndex}`}</button>
+            <button disabled={!to} type="button" onClick={safeICPTransfer}>{`Transfer ${amount} e8s`}</button>
+            <button disabled={!to} type="button" onClick={safeCanisterCall}>Call NNS Minting Canister</button>
+          </div>
+          <div className="security-actions-container">
+            <h3>Unsafe Calls</h3>
+            <button disabled={!to} type="button" onClick={unsafeXTCTransfer}>{`Transfer 0.000001 XTC (1000 cycles)`}</button>
+            <button disabled={!to} type="button" onClick={unsafeICPTransfer}>{`Transfer ${amount} e8s`}</button>
+            <button disabled={!to} type="button" onClick={unsafeNFTTransfer}>Transfer NFT</button>
+            <button disabled={!to} type="button" onClick={unsafeCanisterCall}>Call NNS Minting Canister</button>
+          </div>
+          <BatchTransactions />
+        </>
       )}
-      
+
     </div>
   );
 }
