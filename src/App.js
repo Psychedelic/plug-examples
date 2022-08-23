@@ -3,6 +3,10 @@ import PlugConnect from '@psychedelic/plug-connect';
 import { Principal } from '@dfinity/principal';
 import { Actor } from '@dfinity/agent';
 import RandomBigInt from 'random-bigint';
+import {
+  Provider,
+  WalletConnectRPC,
+} from '@psychedelic/plug-inpage-provider';
 
 import XtcIDL from './idls/xtc.did';
 import ExtIDL from './idls/ext.did';
@@ -50,6 +54,25 @@ function App() {
     }
   }, [connected]);
 
+  const customHandleConnect = () => {
+    const ua = navigator.userAgent;
+    const isAndroid = !!/android/i.test(ua);
+
+    if (!isAndroid) {
+      window.open('https://plugwallet.ooo/', '_blank');
+      return;
+    }
+    const clientRPC = new WalletConnectRPC(window);
+
+    const plugProvider = new Provider(clientRPC);
+
+    const ic = window.ic || {};
+    window.ic = {
+      ...ic,
+      plug: plugProvider,
+    };
+  }
+
   const getMyBalance = async () => {
     // create an actor to interact with XTC
     const actor = await window.ic.plug.createActor({ canisterId: XTC_CANISTER_ID, interfaceFactory: XtcIDL });
@@ -94,6 +117,8 @@ function App() {
   const safeICPTransfer = async () => {
     // create an actor to interact with XTC
     const actor = await window.ic.plug.createActor({ canisterId: NNS_LEDGER_CID, interfaceFactory: nns_ledgerDid });
+
+    console.log('actor ->', actor);
     // request a transfer using this actor
     const response = await actor.send_dfx({
       to: getAccountId(Principal.from(to)),
@@ -240,6 +265,8 @@ function App() {
               }} whitelist={WHITELIST}
             // timeout={5000}
             />
+            <button ype="button" onClick={customHandleConnect}>{`CUSTOM CONNECT`}</button>
+
 
           </>
 

@@ -1,7 +1,7 @@
 import { Principal } from '@dfinity/principal';
 
 import CryptoJS from 'crypto-js';
-import crc32 from 'buffer-crc32';
+// import crc32 from 'buffer-crc32';
 
 
 // Dfinity Account separator
@@ -46,7 +46,7 @@ export const intToHex = (val) =>
 
 // We generate a CRC32 checksum, and trnasform it into a hexString
 export const generateChecksum = (hash) => {
-  const crc = crc32.unsigned(Buffer.from(hash));
+  const crc = 0//crc32.unsigned(Buffer.from(hash));
   const hex = intToHex(crc);
   return hex.padStart(8, '0');
 };
