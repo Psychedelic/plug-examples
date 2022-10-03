@@ -75,7 +75,7 @@ const FLIP_TRANSACTION = (flip) => ({
   args: [true],
   onSuccess: async (res) => {
     console.log('flipped coin ', flip, 'successfully');
-    console.log('coinflip response', res);
+    alert('coinflip response', res);
   },
   onFail: (res) => {
     console.log('coinflip error', res);
@@ -87,7 +87,7 @@ const BatchTransactionsExample = () => {
     console.log('Flipping it three times!');
     const tripleFlip = new Array(3).fill(null).map((_, index) => FLIP_TRANSACTION(index));
     await window.ic.plug.batchTransactions(tripleFlip)
-    console.log('flipped all coins!');
+    alert('flipped all coins!');
   };
   const randomTx = async () => {
     console.log('Doing a bunch of tx');

@@ -10,6 +10,7 @@ import {
 
 import XtcIDL from './idls/xtc.did';
 import ExtIDL from './idls/ext.did';
+import dip20IDL from './idls/dip20.did';
 import './App.css';
 import nnsMintingDid from './idls/nns-minting.did';
 import BatchTransactions from './BatchTransactions';
@@ -21,11 +22,12 @@ export const STARVERSE_CID = 'nbg4r-saaaa-aaaah-qap7a-cai';
 export const NNS_MINTING_CID = 'rkp4c-7iaaa-aaaaa-aaaca-cai';
 export const NNS_LEDGER_CID = 'ryjl3-tyaaa-aaaaa-aaaba-cai';
 export const COINFLIP_CANISTER_ID = '24pmb-qiaaa-aaaah-aannq-cai';
+export const BOX_CANISTER_ID = 'lzvjb-wyaaa-aaaam-qarua-cai';
 
 // Subaccounts are arbitrary 32-byte values.
 export const SUB_ACCOUNT_ZERO = Buffer.alloc(32);
 
-const WHITELIST = [XTC_CANISTER_ID, STARVERSE_CID, NNS_MINTING_CID, COINFLIP_CANISTER_ID, NNS_LEDGER_CID];
+const WHITELIST = [XTC_CANISTER_ID, STARVERSE_CID, NNS_MINTING_CID, COINFLIP_CANISTER_ID, NNS_LEDGER_CID, BOX_CANISTER_ID];
 
 const CYCLES_PER_TC = 1_000_000_000_000;
 const E8S_PER_ICP = 100_000_000;
@@ -57,11 +59,8 @@ function App() {
   const customHandleConnect = () => {
     const ua = navigator.userAgent;
     const isAndroid = !!/android/i.test(ua);
+    console.log('CUSTOM HANDLE CONNECT', isAndroid);
 
-    if (!isAndroid) {
-      window.open('https://plugwallet.ooo/', '_blank');
-      return;
-    }
     const clientRPC = new WalletConnectRPC(window);
 
     const plugProvider = new Provider(clientRPC);
@@ -71,6 +70,11 @@ function App() {
       ...ic,
       plug: plugProvider,
     };
+
+    plugProvider.requestConnect({ whitelist: WHITELIST }).then(() => {
+      setConnected(true)
+      setPrincipal(window.ic.plug.principalId.toString())
+    });
   }
 
   const getMyBalance = async () => {
@@ -92,6 +96,14 @@ function App() {
   const requestTransfer = async () => {
     const response = await window.ic.plug.requestTransfer({ to, amount: 10000 })
 
+    console.log('response', response);
+  }
+
+  const requestBoxTransfer = async () => {
+    // create an actor to interact with XTC
+    const actor = await window.ic.plug.createActor({ canisterId: BOX_CANISTER_ID, interfaceFactory: dip20IDL });
+    // request a transfer using this actor
+    const response = await actor.transfer(Principal.fromText(to), BigInt(1000));
     console.log('response', response);
   }
 
@@ -297,6 +309,7 @@ function App() {
           <div className="security-actions-container flex column">
             <h3>Safe Calls</h3>
             <button disabled={!to} type="button" onClick={requestTransfer}>{`Transfer 0,0001 ICP`}</button>
+            <button disabled={!to} type="button" onClick={requestBoxTransfer}>{`Transfer Box`}</button>
             <button disabled={!to} type="button" onClick={safeXTCTransfer}>{`Transfer ${amount} XTC (${CYCLES_PER_TC * amount} cycles)`}</button>
             <button disabled={!to} type="button" onClick={safeNFTTransfer}>{`Transfer Starverse #${nftIndex}`}</button>
             <button disabled={!to} type="button" onClick={safeNFTLock}>{`Lock Starverse #${nftIndex}`}</button>
