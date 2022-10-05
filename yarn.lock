@@ -1583,6 +1583,22 @@
     crypto-js "^4.1.1"
     json-bigint "^1.0.0"
 
+"@psychedelic/plug-inpage-provider@2.3.0-alpha.6":
+  version "2.3.0-alpha.6"
+  resolved "https://npm.pkg.github.com/download/@Psychedelic/plug-inpage-provider/2.3.0-alpha.6/62fde4450fe1732195e871335eadceff47ebf8ca#62fde4450fe1732195e871335eadceff47ebf8ca"
+  integrity sha512-OMtMMg0/RuTgfz4EaT1eIzQ9KBJE4CRXiosC3NlKLEblwyZgf0m7uL+O6CFqweEnMJMmbJ03eKuFqyn0cjpGMQ==
+  dependencies:
+    "@dfinity/agent" "0.9.3"
+    "@dfinity/candid" "0.9.3"
+    "@dfinity/principal" "0.9.3"
+    "@types/chrome" "^0.0.180"
+    "@walletconnect/browser-utils" "^1.7.8"
+    "@walletconnect/client" "^1.7.8"
+    buffer "^6.0.3"
+    buffer-crc32 "^0.2.13"
+    crypto-js "^4.1.1"
+    json-bigint "^1.0.0"
+
 "@rollup/plugin-node-resolve@^7.1.1":
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/@rollup/plugin-node-resolve/-/plugin-node-resolve-7.1.3.tgz#80de384edfbd7bfc9101164910f86078151a3eca"
